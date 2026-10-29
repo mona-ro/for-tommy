@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A birthday letter for you</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Caveat:wght@500&display=swap">
+<style>
+  :root { --bg:#e8dff5; --olive:#6b7a3a; --olive-dark:#505c28; --lace:#8c9a55; --burgundy:#7a1f35; --plum:#5b3f7a; --ink:#2b2b2b; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body { background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Ccircle cx='8' cy='8' r='2.2' fill='%23f6f1fc'/%3E%3Ccircle cx='32' cy='30' r='1.6' fill='%23f6f1fc'/%3E%3C/svg%3E");
+         color:var(--ink); font-family:'Fraunces',Georgia,serif; display:grid; place-items:center; overflow-x:hidden; }
+
+  /* Page 1: envelope */
+  #envelope-page { text-align:center; transition:opacity .6s ease; }
+  #envelope-page.gone { opacity:0; pointer-events:none; }
+  .hint { color:var(--plum); font-family:'Caveat',cursive; font-size:1.7rem; margin-top:28px; }
+  .envelope { position:relative; width:min(86vw,360px); aspect-ratio:3/2; margin:0 auto; background:var(--olive); border-radius:8px; cursor:pointer; border:0; padding:0; perspective:900px; box-shadow:0 18px 36px rgba(60,40,90,.3); }
+  .envelope:focus-visible { outline:3px solid var(--plum); outline-offset:6px; }
+  .envelope::before { content:""; position:absolute; inset:0; border-radius:8px; background:
+      linear-gradient(to top right, transparent 49.5%, var(--olive-dark) 50%) left/50% 100% no-repeat,
+      linear-gradient(to top left, transparent 49.5%, var(--olive-dark) 50%) right/50% 100% no-repeat; opacity:.6; }
+  .flap { position:absolute; left:0; top:0; width:100%; height:62%; background:var(--olive-dark); clip-path:polygon(0 0,100% 0,50% 100%); transform-origin:top; transition:transform .7s ease; }
+  .seal { position:absolute; left:50%; top:62%; width:56px; height:56px; margin:-28px 0 0 -28px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #b0344f, var(--burgundy) 65%, #55121f); color:#f7dbe1; display:grid; place-items:center; font-size:1.6rem; box-shadow:0 3px 8px rgba(40,10,20,.45); transition:opacity .3s; }
+  .envelope.open .flap { transform:rotateX(180deg); }
+  .envelope.open .seal { opacity:0; }
+
+  /* Page 2: letter */
+  #letter-page { position:absolute; inset:0; display:flex; padding:68px 20px 40px; opacity:0; pointer-events:none; transition:opacity .9s ease .2s; overflow-y:auto; }
+  #letter-page.show { opacity:1; pointer-events:auto; }
+  .letter { margin:auto; width:min(100%,620px); padding:clamp(14px,4vw,34px); position:relative; border:22px solid transparent;
+    background:linear-gradient(#fff,#fff) padding-box,
+      radial-gradient(circle, var(--lace) 1.8px, transparent 2.3px) 0 0/11px 11px,
+      linear-gradient(45deg, transparent 44%, var(--lace) 46% 54%, transparent 56%) 0 0/11px 11px,
+      linear-gradient(135deg, transparent 44%, var(--lace) 46% 54%, transparent 56%) 0 0/11px 11px,
+      #fff border-box;
+    border-radius:6px; box-shadow:0 14px 34px rgba(60,40,90,.25); line-height:1.75; font-size:1.1rem; transform:translateY(30px); transition:transform .9s ease .2s; }
+  .letter::before { content:""; position:absolute; inset:-9px; border:1px solid var(--lace); border-radius:3px; pointer-events:none; }
+  #letter-page.show .letter { transform:none; }
+  .letter h1 { font-size:2.2rem; font-weight:600; margin:0 0 .6em; line-height:1.2; color:var(--plum); }
+  .letter p { margin:0 0 1em; }
+  .sign { font-family:'Caveat',cursive; font-size:2rem; margin-top:1.2em; }
+
+  /* heart photo frame (only appears if photo.jpg exists) */
+  .photo { display:none; position:relative; width:min(72%,260px); aspect-ratio:1/.95; margin:1.6em auto 0; }
+  .photo.show { display:block; }
+  .photo::before { content:""; position:absolute; inset:0; background:var(--burgundy); clip-path:url(#heart); }
+  .photo img { position:absolute; left:6%; top:6%; width:88%; height:83%; object-fit:cover; clip-path:url(#heart); }
+
+  .mute, .back { position:fixed; top:14px; background:var(--olive); color:#fff; border:1px solid #cdbfe6; border-radius:999px; padding:8px 14px; font:inherit; font-size:.9rem; cursor:pointer; display:none; z-index:5; }
+  .mute { right:14px; }
+  .back { left:14px; }
+  .mute.show, .back.show { display:block; }
+  .mute:focus-visible, .back:focus-visible { outline:3px solid var(--plum); outline-offset:2px; }
+  @media (prefers-reduced-motion:reduce) { * { transition-duration:.01s !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><clipPath id="heart" clipPathUnits="objectBoundingBox"><path d="M0.5,0.95 C0.1,0.65 0,0.45 0,0.28 C0,0.1 0.12,0 0.27,0 C0.38,0 0.46,0.06 0.5,0.14 C0.54,0.06 0.62,0 0.73,0 C0.88,0 1,0.1 1,0.28 C1,0.45 0.9,0.65 0.5,0.95 Z"/></clipPath></defs>
+</svg>
+
+<main id="envelope-page">
+  <button class="envelope" id="envelope" aria-label="Open your birthday letter">
+    <div class="flap"></div>
+    <div class="seal" aria-hidden="true">♥</div>
+  </button>
+  <p class="hint">tap to open</p>
+</main>
+
+<section id="letter-page" aria-live="polite">
+  <article class="letter">
+    <h1>Tommy,</h1> <!-- ✏️ CHANGE: friend's name -->
+    <!-- ✏️ CHANGE: write your own message below, one <p> per paragraph -->
+    <p>I’ve probably already said it at this point, but happy 22nd birthday! I’m not sure what to write about, but you seem to like a soppy letter, so that is what you shall receive.</p>
+    <p>A lot has changed since I wrote my first letter to you. We barely knew anything at all about each other back then. But the few interactions we had were enough to feel your incredibly kind and sweet and warm aura :3, and so far I think my intuition was correct. I still find it hard to believe this is actually happening sometimes. What do you mean I get to talk to you everyday and get a glimpse into your beautiful mind and take up your time? Not long ago I would not even dare to dream of this :P.</p>
+    <p>I know you beat yourself up for having many abandoned hobbies and not committing to them, but you really are one of the most whimsical, imaginative, and perceptive people I’ve met :> and all that whimsy is definitely rubbing off on me. You had me writing and designing letters all summer (side note: I’ve always loved the idea of having a pen pal and you’re the first person who was actually willing to regularly write me back and put in so much effort into your letters :) I’m endlessly thankful), it’s been so long since I wrote anything just for fun. And I also drew and painted for the first time in years, picked up those beads and wire again just to decorate your gift with flowers, and now re-learning how to code in HTML to make this letter more fun. You are quite the muse perchance ( ⸝⸝´ ᵕ `⸝⸝).</p>
+    <p>Sometimes I worry that you worry too much about all this. There is no checklist you have to follow or expected timeline. I also have no idea what I’m doing. It’s a completely new experience every time and I would never compare you to anyone else. But I think ‘going with the flow’ is much more fun than trying to follow some sort of script :P. Back in February, I vividly remember telling myself that I would not ‘date’ anyone for at least the next year. Despite how nice being in a healthy relationship is, there is a lot of peace that comes with being single. Of course, this peace lasted less than a month before the most enchanting person ever entered my life. I guess the point of this anecdote is that my feelings cannot be helped and you would have to do something truly atrocious to mess this up. So please do not stress :] there is no rush at all.</p>
+    <p>All that said, I hope you had an amazing birthday. To be honest, I wanted to send this to you at midnight, but I severely underestimated how much time this would take me. I don’t even know how to host a website (╥﹏╥) I’m just going to do it on my Github and hope my statistical programming professor doesn’t check this repository when she’s grading my assignments :3. 
+</p>
+    <div class="sign">Wishing that all your wishes came true today :)</div> <!-- ✏️ CHANGE: your name -->
+    <p>- mona</p>
+    <div class="photo" id="photo"><img id="photo-img" alt="The two of us together"></div>
+  </article>
+</section>
+
+<button class="back" id="back">Back to envelope</button>
+<button class="mute" id="mute">Pause music</button>
+<audio id="song" src="song.mp3" loop preload="auto"></audio>
+
+<script>
+  const env = document.getElementById('envelope');
+  const page1 = document.getElementById('envelope-page');
+  const page2 = document.getElementById('letter-page');
+  const song = document.getElementById('song');
+  const mute = document.getElementById('mute');
+  const back = document.getElementById('back');
+  let busy = false;
+
+  env.addEventListener('click', () => {
+    if (busy) return;
+    busy = true;
+    env.classList.add('open');
+    if (song.paused && mute.textContent !== 'Play music') song.play().catch(() => {}); // must start from a click
+    mute.classList.add('show');
+    setTimeout(() => {
+      page1.classList.add('gone');
+      page2.scrollTop = 0;
+      page2.classList.add('show');
+      back.classList.add('show');
+      busy = false;
+    }, 900);
+  });
+
+  back.addEventListener('click', () => {
+    page2.classList.remove('show');
+    back.classList.remove('show');
+    page1.classList.remove('gone');
+    env.classList.remove('open');
+  });
+
+  mute.addEventListener('click', () => {
+    if (song.paused) { song.play(); mute.textContent = 'Pause music'; }
+    else { song.pause(); mute.textContent = 'Play music'; }
+  });
+
+  // Show the heart photo only if photo.jpg is in the repo
+  const test = new Image();
+  test.onload = () => {
+    document.getElementById('photo-img').src = 'photo.jpg';
+    document.getElementById('photo').classList.add('show');
+  };
+  test.src = 'photo.jpg';
+</script>
+</body>
+</html>
